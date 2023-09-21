@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <title>mason's rule</title>
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-graphviz/5.0.2/d3-graphviz.min.js"
+        integrity="sha512-4XdYzhPXKzS9jBDv85W+sPv270Czbj0REj7ekQuQwsqle7EBC8zm7maE3ZsV14SCGrA9wOTRjxQF1N0fQxjN1g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="index.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <base href="https://cdn.jsdelivr.net/npm/latex.js/dist/">
+    <script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.js"
+        integrity="sha512-Xo0Jh8MsOn72LGV8kU5LsclG7SUzJsWGhXbWcYs2MAmChkQzwiW/yTQwdJ8w6UA9C6EVG18GHb/TrYpYCjyAQw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.css"
+        integrity="sha512-KXol4x3sVoO+8ZsWPFI/r5KBVB/ssCGB5tsv2nVOKwLg33wTFP3fmnXa47FdSVIshVTgsYk/1734xSk9aFIa4A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        @font-face {
+            font-family: 'ChenYuluoyan-Thin';
+            src: url('https://cdn.jsdelivr.net/gh/Chenyu-otf/chenyuluoyan_thin@v1.0-monospaced/ChenYuluoyan-Thin.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'ChenYuluoyan-Thin', sans-serif;
+            font-size: 1rem;
+        }
+    </style>
+
+</head>
+
+<body style="padding-left: 5vw; padding-right: 5vw; margin-top: 5vh;">
+    
+    <div style="margin-top: 5vh;">
+        <h1 style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;">mason's rule</h1>
+        <div class="ui segment red">
+            <h2 class="ui message" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;">signal flow
+                graph (*.dot)</h2>
+            <button class="btn-1"
+                style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+                id="addNodeBtn">Add
+                Node</button>
+            <button class="btn-1"
+                style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+                id="connectNodesBtn">Connect
+                Nodes</button>
+            <!--button download graphviz as txt-->
+            <button class="btn-1"
+                style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+                id="downloadGraphvizBtn">Download Graphviz</button>
+            <!--select file-->
+            <input style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;" type="file"
+                id="graphvizFile" accept=".dot">
+            <!--button load .dot-->
+            <button class="btn-1"
+                style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+                id="loadGraphvizBtn">Load
+                Graphviz</button>
+        </div>
+        <div class="ui segment  top attached orange" style="padding-bottom: 10vh;">
+            <div class="ui left internal attached rail">
+                <h2 class="ui tall stacked segment"
+                    style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;">
+                    step 1 find
+                    all Forward Path</h2>
+            </div>
+            <div class="ui right internal attached rail">
+                <div class="ui segment">
+                    <button class="btn-1 ui button"
+                        style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem; z-index: 99990;"
+                        id="findForwardPathBtn">Find
+                        Forward Path</button>
+                </div>
+            </div>
+
+            <!--a button to let user find foward path-->
+        </div>
+        <!--a list to display Forward Paths-->
+        <div class="segment attached warning message ui" style="margin-top: 10vh;">
+            <ul class="ui bulleted list" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+                id="forwardPathList"></ul>
+            <!--count path numbers-->
+            <div class="ui statistic">
+                <p class="value" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+                    id="pathCount">
+                </p>
+                <div class="label" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 0.9rem;">
+                    counts
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui segment yellow">
+        <h2 class="ui clearing segment" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;">step 2
+            Find
+            All Loop Paths
+            <button class="ui right floated button"
+            style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+            id="findAllLoopPathsBtn">Find
+            All Loop Paths</button>
+        </h2>
+        <!--find all loop paths-->
+        <!--a list to display Loop Paths-->
+        <ul class="ui bulleted list" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+            id="loopPathList"></ul>
+        <!--count path numbers-->
+        <p style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;" id="loopPathCount"></p>
+    </div>
+    <div class="ui segment olive">
+        <h2 class="ui piled clearing segment" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;">step 3
+            Find
+            All Non-Touching Loop
+            Paths
+            <button class="ui right floated button btn-1"
+            style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+            id="findAllNonTouchingLoopPathsBtn">Find All Non-Touching Loop Paths</button>
+        </h2>
+        <div style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;" id="noTouches"></div>
+        <!--find all non-touching loop paths-->
+        
+        <!--step 4 delta-->
+    </div>
+    <div class="ui segment green">
+        <h2 class="ui piled segment" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;">step 4
+            put
+            together Delta</h2>
+        <div style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;" id="delta"></div>
+        <button class="btn-1"
+            style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+            id="calculateDeltaBtn">Calculate Delta</button>
+    </div>
+    <div class="ui segment teal">
+        <h2 class="ui piled segment" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;">step 5
+            [Numerator] sigma_k T_k
+            times delta_k</h2>
+        <button class="btn-1"
+            style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+            id="calculateNumeratorBtn">(5)
+            Calculate Numerator</button>
+        <h3 style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;" id="Numerator"></h3>
+    </div>
+    <div class="ui segment blue">
+        <h2 class="ui piled segment" style="font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;">step6
+            final
+            ans</h2>
+        <button class="btn-1"
+            style="text-transform: lowercase; font-family: 'ChenYuluoyan-Thin', sans-serif; font-size: 2.2rem;"
+            id="calculateFinalBtn">Calculate
+            Final Answer</button>
+        <div id="finalAns"></div>
+    </div>
+    </div>
+    <div class="ui placeholder segment violet">
+        <h2 class="ui header">
+            <i class="object group outline icon"></i>
+            <div class="content">
+              信號流程圖會在這裡顯示
+            </div>
+          </h2>
+        <a href="https://dreampuf.github.io/GraphvizOnline/" class="ui teal right ribbon label">用這個工具GraphvizOnline更漂亮</a>
+        <div id="graphContainer"></div>
+    </div>
+</body>
+
+</html>
